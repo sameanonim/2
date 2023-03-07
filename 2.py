@@ -4,17 +4,73 @@ from googleapiclient.discovery import build
 
 class Channel:
     instances = []
-    # YT_API_KEY скопирован из гугла и вставлен в переменные окружения
     api_key: str = os.getenv('YT_API_KEY')
 
-        # создать специальный объект для работы с API
-    youtube = build('youtube', 'v3', developerKey=api_key)
-
     def __init__(self, channel_id):
-        self.channel_id = channel_id
-        self.__class__.instances.append(self)
+        self._channel_id = channel_id
+        self._title = None
+        self._description = None
+        self._url = None
+        self._subscriber_count = None
+        self._video_count = None
+        self._view_count = None
+        self.instances.append(self)
+        self.initialize_attributes()
 
-    # вывод данных по id каналу
-    def print_info(self):
-        print(f'{self.channel_id}')
-        print(json.dumps(self.youtube.channels().list(id=self.channel_id, part='snippet,statistics').execute(), indent=2, ensure_ascii=False))
+    def initialize_attributes(self):
+        api_object = self.get_api_object()
+        channel_info = api_object.channels().list(id=self.channel_id, part='snippet,statistics').execute()['items'][0]
+        self._title = channel_info['snippet']['title']
+        self._description = channel_info['snippet']['description']
+        self._url = f"https://www.youtube.com/channel/{self.channel_id}"
+        self._subscriber_count = int(channel_info['statistics']['subscriberCount'])
+        self._video_count = int(channel_info['statistics']['videoCount'])
+        self._view_count = int(channel_info['statistics']['viewCount'])
+
+    @property
+    def channel_id(self):
+        return self._channel_id
+
+    @property
+    def title(self):
+        return self._title
+
+    @property
+    def description(self):
+        return self._description
+
+    @property
+    def url(self):
+        return self._url
+
+    @property
+    def subscriber_count(self):
+        return self._subscriber_count
+
+    @property
+    def video_count(self):
+        return self._video_count
+
+    @property
+    def view_count(self):
+        return self._view_count
+
+    def get_api_object(self):
+        return build('youtube', 'v3', developerKey=self.api_key)
+
+    @classmethod
+    def get_service(cls):
+        return build('youtube', 'v3', developerKey=cls.api_key)
+
+    def to_json(self, file_name):
+        data = {
+            "channel_id": self.channel_id,
+            "title": self.title,
+            "description": self.description,
+            "url": self.url,
+            "subscriber_count": self.subscriber_count,
+            "video_count": self.video_count,
+            "view_count": self.view_count
+        }
+        with open(file_name, "w") as f:
+            json.dump(data, f)
