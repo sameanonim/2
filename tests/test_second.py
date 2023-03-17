@@ -1,7 +1,9 @@
 import os
 import json
 import pytest
-from second import Channel, Video, PLVideo
+import datetime
+from unittest.mock import MagicMock
+from second import YoutubeAPI, Channel, Video, PLVideo, PlayList
 
 class TestChannel:
 
@@ -89,3 +91,21 @@ class TestPLVideo:
             assert False
         except:
             assert True
+
+class TestPlayList:
+
+    def test_title(self):
+        playlist = PlayList('PLguYHBi01DWr4bRWc4uaguASmo7lW4GCb')
+        assert playlist.title == 'Редакция. АнтиТревел'
+
+    def test_url(self):
+        playlist = PlayList('PLguYHBi01DWr4bRWc4uaguASmo7lW4GCb')
+        assert playlist.url == 'https://www.youtube.com/playlist?list=PLguYHBi01DWr4bRWc4uaguASmo7lW4GCb'
+
+    def test_total_duration(self):
+        playlist = PlayList('PLguYHBi01DWr4bRWc4uaguASmo7lW4GCb')
+        assert playlist.total_duration == datetime.timedelta(seconds=13261.0)
+
+    def test_most_popular_video_link(self):
+        playlist = PlayList('PLguYHBi01DWr4bRWc4uaguASmo7lW4GCb')
+        assert playlist.most_popular_video_link() == 'https://youtu.be/9Bv2zltQKQA'
