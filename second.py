@@ -107,7 +107,10 @@ class Video(YoutubeAPI):
         self._title = None
         self._view_count = None
         self._like_count = None
-        self.initialize_attributes()
+        try:
+            self.initialize_attributes()
+        except:
+            pass
 
     def initialize_attributes(self):
         api_object = YoutubeAPI.get_api_object()
